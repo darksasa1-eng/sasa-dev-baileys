@@ -1,4 +1,4 @@
-import { WAMessage } from './messages';
+import { WAMessage, TextMessage } from './messages';  // 👈 Import TextMessage
 import { BaileysClient } from '../client';
 
 export type NextFunction = (err?: Error) => void;
@@ -12,7 +12,7 @@ export type Middleware = (ctx: MiddlewareContext, next: NextFunction) => Promise
 
 export interface CommandContext {
   client: BaileysClient;
-  message: TextMessage;
+  message: TextMessage;          // 👈 දැන් නිවැරදි
   args: string[];
   commandName: string;
 }
