@@ -42,7 +42,9 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "example:basic": "tsx examples/basic-usage.ts",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build"
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run typecheck:examples && npm run test && npm run build",
+    "typecheck:examples": "tsc -p tsconfig.examples.json",
+    "example:toolkit": "tsx examples/protocol-toolkit.ts"
   },
   "keywords": [
     "whatsapp",
