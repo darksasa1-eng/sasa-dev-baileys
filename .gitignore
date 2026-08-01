@@ -18,8 +18,11 @@ Thumbs.db
 # Local auth/session state (never commit credentials)
 auth_info/
 auth_info_*/
+auth_state*/
 sessions/
 *.session
+.example-auth.json
+*.example-auth.json
 
 # Local media cache
 tmp-media/
