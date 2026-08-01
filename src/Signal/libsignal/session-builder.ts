@@ -67,9 +67,7 @@ export function initSession(
   const dh1 = calculateAgreement(params.theirSignedPreKey.publicKey, params.ourIdentityKey.privateKey);
   const dh2 = calculateAgreement(params.theirIdentityKey, baseKey.privateKey);
   const dh3 = calculateAgreement(params.theirSignedPreKey.publicKey, baseKey.privateKey);
-  const dh4 = params.theirOneTimePreKey
-    ? calculateAgreement(params.theirOneTimePreKey, baseKey.privateKey)
-    : undefined;
+  const dh4 = params.theirOneTimePreKey ? calculateAgreement(params.theirOneTimePreKey, baseKey.privateKey) : undefined;
 
   const x3dhRoot = deriveRootKey(triple3(dh1, dh2, dh3, dh4));
 
@@ -105,7 +103,10 @@ export function processPreKeyBundle(params: ProcessPreKeyParams): SessionState {
   const x3dhRoot = deriveRootKey(triple3(dh1, dh2, dh3, dh4));
 
   // First receiving chain: kdfRK(SK, DH(SPK_local, baseKey_remote)).
-  const receiveStep = kdfRK(x3dhRoot, calculateAgreement(params.theirEphemeralKey, params.ourSignedPreKey.keyPair.privateKey));
+  const receiveStep = kdfRK(
+    x3dhRoot,
+    calculateAgreement(params.theirEphemeralKey, params.ourSignedPreKey.keyPair.privateKey),
+  );
 
   const session = createSessionState({
     rootKey: receiveStep.rootKey,

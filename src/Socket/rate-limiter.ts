@@ -77,10 +77,13 @@ export class TokenBucketRateLimiter {
     this.#reservationEnd = Math.max(grantAt, now);
 
     return new Promise<void>((resolve) => {
-      const timer = setTimeout(() => {
-        this.#pending.delete(timer);
-        resolve();
-      }, Math.max(0, totalWait));
+      const timer = setTimeout(
+        () => {
+          this.#pending.delete(timer);
+          resolve();
+        },
+        Math.max(0, totalWait),
+      );
       timer.unref?.();
       this.#pending.add(timer);
     });

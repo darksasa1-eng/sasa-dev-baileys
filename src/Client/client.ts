@@ -117,7 +117,7 @@ export class SasaClient {
       uploader: new MediaUploader(this.logger),
       downloader: new MediaDownloader(this.logger),
     };
-    this.store = options.store === false ? undefined : options.store ?? new InMemoryStore(options.storeOptions);
+    this.store = options.store === false ? undefined : (options.store ?? new InMemoryStore(options.storeOptions));
 
     // recovery → reconnect trigger
     this.recoveryManager.on('trigger', () => {
@@ -161,7 +161,11 @@ export class SasaClient {
   }
 
   /** Connection + performance metrics API */
-  get metrics(): { enabled: boolean; snapshot: () => MetricsSnapshot | undefined; raw: () => ConnectionMetrics | undefined } {
+  get metrics(): {
+    enabled: boolean;
+    snapshot: () => MetricsSnapshot | undefined;
+    raw: () => ConnectionMetrics | undefined;
+  } {
     return {
       enabled: this.config.features.metrics,
       snapshot: () => this.#metrics()?.snapshot(),
@@ -184,7 +188,10 @@ export class SasaClient {
     if (this.#authState) return this.#authState;
     const auth = this.config.auth;
     if (isStorageAdapter(auth)) {
-      this.#authPersistence = await useAuthState(auth, { namespace: this.config.sessionNamespace, logger: this.logger });
+      this.#authPersistence = await useAuthState(auth, {
+        namespace: this.config.sessionNamespace,
+        logger: this.logger,
+      });
       this.#authState = this.#authPersistence.state;
     } else {
       this.#authState = auth;
@@ -559,7 +566,11 @@ export class SasaClient {
       throw new BaileysError('session export requires a StorageAdapter-backed client', { code: 'ERR_UNSUPPORTED' });
     }
     const namespace = this.config.sessionNamespace ?? '';
-    const keys = await collectSignalDataSet((p) => adapter.keys(p), (k) => adapter.get(k), namespace);
+    const keys = await collectSignalDataSet(
+      (p) => adapter.keys(p),
+      (k) => adapter.get(k),
+      namespace,
+    );
     return exportSession(auth.creds, keys as SignalDataSet);
   }
 }

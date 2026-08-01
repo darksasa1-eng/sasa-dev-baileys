@@ -57,11 +57,7 @@ export function normalizePhoneNumber(input: string): NormalizedPhone {
  * pairing payload: HMAC over (public || phone || ref) material.
  * (Server-side verification; documented as the client-side derivation.)
  */
-export function computePairingKeyMaterial(
-  pairingPublic: Uint8Array,
-  phoneDigits: string,
-  ref: string,
-): Uint8Array {
+export function computePairingKeyMaterial(pairingPublic: Uint8Array, phoneDigits: string, ref: string): Uint8Array {
   return hmacSha256(pairingPublic, Buffer.from(`${phoneDigits}@${ref}`, 'utf-8'));
 }
 

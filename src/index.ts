@@ -55,7 +55,12 @@ export * as Jids from './Utils/jids';
 
 // ---- messaging ----
 export { MessageBuilder } from './Messaging/builder';
-export { serializeMessage, deserializeMessage, serializeMessageKey, deserializeMessageKey } from './Messaging/serializer';
+export {
+  serializeMessage,
+  deserializeMessage,
+  serializeMessageKey,
+  deserializeMessageKey,
+} from './Messaging/serializer';
 export { MessageInterceptor } from './Messaging/interceptors';
 export { InMemoryStore, type InMemoryStoreOptions, type StoreSnapshot } from './Messaging/store';
 

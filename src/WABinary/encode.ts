@@ -186,7 +186,6 @@ function writePackedBytes(w: ByteWriter, str: string, type: 'nibble' | 'hex'): v
     }
   } else {
     for (let i = 0; i < half; i++) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       w.pushByte((packHex(str.charCodeAt(2 * i)) << 4) | packHex(str.charCodeAt(2 * i + 1)));
     }
     if (str.length % 2 !== 0) {

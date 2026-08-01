@@ -120,8 +120,9 @@ export class InMemoryStore {
   }
 
   updateMessage(chatId: string, messageId: string, patch: Partial<WAMessage>): void {
-    const message = this.#messages.get(chatId)?.get(messageId);
-    if (message) this.#messages.get(chatId)!.set(messageId, { ...message, ...patch });
+    const chat = this.#messages.get(chatId);
+    const message = chat?.get(messageId);
+    if (chat && message) chat.set(messageId, { ...message, ...patch });
   }
 
   removeMessage(chatId: string, messageId: string): boolean {

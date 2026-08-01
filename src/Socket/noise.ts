@@ -193,12 +193,14 @@ export class NoiseHandshake {
       // <- e, ee, s, es
       if (this.#messages !== 1) throw new HandshakeError('initiator expected to receive msg2');
       if (data.byteLength < 32 + 48) throw new HandshakeError('msg2 too short');
+      const ephemeral = this.#ephemeral;
+      if (!ephemeral) throw new HandshakeError('ephemeral key missing — msg1 must be generated first');
       this.#remoteEphemeral = data.subarray(0, 32);
       this.#mixHash(this.#remoteEphemeral);
-      this.#mixKey(this.#dh(this.#ephemeral!.privateKey, this.#remoteEphemeral)); // ee
+      this.#mixKey(this.#dh(ephemeral.privateKey, this.#remoteEphemeral)); // ee
       const encStatic = data.subarray(32, 32 + 48);
       this.#remoteStatic = this.#decryptAndHash(encStatic); // s
-      this.#mixKey(this.#dh(this.#ephemeral!.privateKey, this.#remoteStatic)); // es
+      this.#mixKey(this.#dh(ephemeral.privateKey, this.#remoteStatic)); // es
       const payload = this.#decryptAndHash(data.subarray(80));
       this.#messages = 2;
       this.#hookVerify('responder-static', this.#remoteStatic, payload);
@@ -218,9 +220,11 @@ export class NoiseHandshake {
     if (this.#messages === 2) {
       // -> s, se (msg3)
       if (data.byteLength < 48) throw new HandshakeError('msg3 too short');
+      const ephemeral = this.#ephemeral;
+      if (!ephemeral) throw new HandshakeError('ephemeral key missing — msg2 must be generated first');
       const encStatic = data.subarray(0, 48);
       this.#remoteStatic = this.#decryptAndHash(encStatic); // s
-      this.#mixKey(this.#dh(this.#ephemeral!.privateKey, this.#remoteStatic)); // se
+      this.#mixKey(this.#dh(ephemeral.privateKey, this.#remoteStatic)); // se
       const payload = this.#decryptAndHash(data.subarray(48));
       this.#messages = 3;
       this.#finished = true;

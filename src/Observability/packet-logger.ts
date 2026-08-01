@@ -77,6 +77,7 @@ function redactNode(node: BinaryNode, redact: Set<string>, maxAttrs: number): Bi
   let content = node.content;
   if (Array.isArray(content)) content = content.map((c) => redactNode(c, redact, maxAttrs));
   else if (content instanceof Uint8Array) content = `[${content.byteLength} bytes]`;
-  else if (typeof content === 'string' && content.length > 256) content = `${content.slice(0, 200)}…(${content.length})`;
+  else if (typeof content === 'string' && content.length > 256)
+    content = `${content.slice(0, 200)}…(${content.length})`;
   return { tag: node.tag, attrs, content: content as BinaryNode['content'] };
 }

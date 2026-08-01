@@ -1,13 +1,5 @@
 import { ProtocolError } from '../Defaults/errors';
-import {
-  ProtoWriter,
-  readFields,
-  getFieldBytes,
-  getFieldVarint,
-  writeVarint,
-  WIRE_VARINT,
-  WIRE_LENGTH_DELIMITED,
-} from '../Signal/proto-wire';
+import { ProtoWriter, readFields, getFieldBytes, getFieldVarint, WIRE_LENGTH_DELIMITED } from '../Signal/proto-wire';
 import type { MessageContent, WAMessageKey, ContextInfo } from '../Types/messages';
 
 /**
@@ -151,9 +143,11 @@ function encodeBySchema(schema: MessageSchema, value: Record<string, unknown>): 
       case 'varint':
         w.varint(field.num, typeof v === 'number' ? v : Number(v));
         break;
-      case 'message':
-        w.bytes(field.num, encodeBySchema(field.schema!, v as Record<string, unknown>));
+      case 'message': {
+        if (!field.schema) throw new ProtocolError(`serializer: nested schema missing for field "${name}"`);
+        w.bytes(field.num, encodeBySchema(field.schema, v as Record<string, unknown>));
         break;
+      }
     }
   }
   return w.finish();
@@ -170,9 +164,12 @@ function decodeBySchema(schema: MessageSchema, data: Uint8Array): Record<string,
         break;
       }
       case 'repeated-string': {
-        const items = fields
-          .filter((f) => f.fieldNumber === field.num && f.wireType === WIRE_LENGTH_DELIMITED && f.bytes)
-          .map((f) => Buffer.from(f.bytes!).toString('utf-8'));
+        const items: string[] = [];
+        for (const f of fields) {
+          if (f.fieldNumber === field.num && f.wireType === WIRE_LENGTH_DELIMITED && f.bytes) {
+            items.push(Buffer.from(f.bytes).toString('utf-8'));
+          }
+        }
         if (items.length) out[name] = items;
         break;
       }
@@ -192,8 +189,9 @@ function decodeBySchema(schema: MessageSchema, data: Uint8Array): Record<string,
         break;
       }
       case 'message': {
+        if (!field.schema) throw new ProtocolError(`serializer: nested schema missing for field "${name}"`);
         const b = getFieldBytes(fields, field.num);
-        if (b) out[name] = decodeBySchema(field.schema!, b);
+        if (b) out[name] = decodeBySchema(field.schema, b);
         break;
       }
     }

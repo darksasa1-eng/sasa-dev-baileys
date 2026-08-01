@@ -145,7 +145,8 @@ export function extractMessageText(message: MessageContent | undefined | null): 
   if (ext?.text) return ext.text;
   const anyMedia = message.imageMessage ?? message.videoMessage ?? message.documentMessage;
   if (anyMedia?.caption) return anyMedia.caption;
-  const wrapped = message.ephemeralMessage?.message ?? message.viewOnceMessage?.message ?? message.viewOnceMessageV2?.message;
+  const wrapped =
+    message.ephemeralMessage?.message ?? message.viewOnceMessage?.message ?? message.viewOnceMessageV2?.message;
   if (wrapped) return extractMessageText(wrapped as MessageContent);
   return undefined;
 }
@@ -154,7 +155,7 @@ export function extractMessageText(message: MessageContent | undefined | null): 
 export function unwrapMessageContent(message: MessageContent | undefined): MessageContent | undefined {
   if (!message) return undefined;
   let current: MessageContent | undefined = message;
-  // eslint-disable-next-line no-constant-condition
+
   while (current) {
     const next =
       current.ephemeralMessage?.message ??

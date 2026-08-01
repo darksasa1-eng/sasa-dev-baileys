@@ -89,7 +89,11 @@ export interface ParsedServerHello {
   payload?: Uint8Array;
 }
 
-export function parseHandshakePayload(data: Uint8Array): { clientHello?: unknown; serverHello?: ParsedServerHello; clientFinish?: unknown } {
+export function parseHandshakePayload(data: Uint8Array): {
+  clientHello?: unknown;
+  serverHello?: ParsedServerHello;
+  clientFinish?: unknown;
+} {
   const fields = readFields(data);
   const helloBytes = getFieldBytes(fields, 2);
   if (!helloBytes) return {};
@@ -123,6 +127,9 @@ export function makeUserAgent(browser: WABrowserDescription, version: WAVersion)
   };
 }
 
-export function varintOrZero(values: { fieldNumber: number; wireType: number; varint?: number }[], num: number): number {
+export function varintOrZero(
+  values: { fieldNumber: number; wireType: number; varint?: number }[],
+  num: number,
+): number {
   return getFieldVarint(values, num) ?? 0;
 }

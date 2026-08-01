@@ -47,11 +47,19 @@ export function generateMediaKey(): Uint8Array {
 }
 
 /** Encrypt a media buffer with a fresh (or given) mediaKey */
-export function encryptMedia(plaintext: Uint8Array, mediaType: MediaType, mediaKey: Uint8Array = generateMediaKey()): EncryptedMediaResult {
+export function encryptMedia(
+  plaintext: Uint8Array,
+  mediaType: MediaType,
+  mediaKey: Uint8Array = generateMediaKey(),
+): EncryptedMediaResult {
   const keys = getMediaKeys(mediaKey, mediaType);
   const cipher = createCipheriv('aes-256-cbc', Buffer.from(keys.cipherKey), Buffer.from(keys.iv));
   const ciphertext = Buffer.concat([cipher.update(Buffer.from(plaintext)), cipher.final()]);
-  const mac = createHmac('sha256', Buffer.from(keys.macKey)).update(Buffer.from(keys.iv)).update(ciphertext).digest().subarray(0, 10);
+  const mac = createHmac('sha256', Buffer.from(keys.macKey))
+    .update(Buffer.from(keys.iv))
+    .update(ciphertext)
+    .digest()
+    .subarray(0, 10);
   const body = Buffer.concat([ciphertext, mac]);
   return {
     body: new Uint8Array(body),
@@ -87,7 +95,13 @@ export function createMediaCipher(mediaType: MediaType, mediaKey: Uint8Array = g
       mac.update(enc);
       return new Uint8Array(enc);
     },
-    finalize(): { body: Uint8Array; fileSha256: Uint8Array; fileEncSha256: Uint8Array; fileLength: number; mediaKey: Uint8Array } {
+    finalize(): {
+      body: Uint8Array;
+      fileSha256: Uint8Array;
+      fileEncSha256: Uint8Array;
+      fileLength: number;
+      mediaKey: Uint8Array;
+    } {
       const tail = cipher.final();
       encHash.update(tail);
       mac.update(tail);

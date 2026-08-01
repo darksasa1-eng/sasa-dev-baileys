@@ -60,11 +60,7 @@ export class MongoStorageAdapter implements StorageAdapter {
 
   async set<T>(key: string, value: T): Promise<void> {
     try {
-      await this.#collection.replaceOne(
-        { [this.#keyField]: key },
-        { [this.#keyField]: key, value },
-        { upsert: true },
-      );
+      await this.#collection.replaceOne({ [this.#keyField]: key }, { [this.#keyField]: key, value }, { upsert: true });
     } catch (err) {
       throw wrapStorageError(err, `mongo adapter: set failed for key ${key}`);
     }

@@ -63,7 +63,12 @@ export function aesGcmEncrypt(key: Uint8Array, iv: Uint8Array, plaintext: Uint8A
   return new Uint8Array(Buffer.concat([enc, cipher.getAuthTag()]));
 }
 
-export function aesGcmDecrypt(key: Uint8Array, iv: Uint8Array, ciphertextAndTag: Uint8Array, aad?: Uint8Array): Uint8Array {
+export function aesGcmDecrypt(
+  key: Uint8Array,
+  iv: Uint8Array,
+  ciphertextAndTag: Uint8Array,
+  aad?: Uint8Array,
+): Uint8Array {
   if (key.byteLength !== 32) throw new DecryptionError('aesGcmDecrypt: key must be 32 bytes');
   if (iv.byteLength !== 12) throw new DecryptionError('aesGcmDecrypt: iv must be 12 bytes');
   if (ciphertextAndTag.byteLength < 16) throw new DecryptionError('aesGcmDecrypt: frame shorter than auth tag');

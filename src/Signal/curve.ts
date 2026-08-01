@@ -39,7 +39,11 @@ const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 const ED25519_PKCS8_PREFIX = Buffer.from('302e020100300506032b657004220420', 'hex');
 
 function x25519Private(raw: Uint8Array): KeyObject {
-  return createPrivateKey({ key: Buffer.concat([X25519_PKCS8_PREFIX, Buffer.from(raw)]), format: 'der', type: 'pkcs8' });
+  return createPrivateKey({
+    key: Buffer.concat([X25519_PKCS8_PREFIX, Buffer.from(raw)]),
+    format: 'der',
+    type: 'pkcs8',
+  });
 }
 
 function x25519Public(raw: Uint8Array): KeyObject {
@@ -143,10 +147,6 @@ export function calculateSignature(privateKey: Uint8Array, message: Uint8Array):
 }
 
 /** Verify a detached signature; never throws */
-export function verifySignature(
-  publicKey: Uint8Array,
-  message: Uint8Array,
-  signature: Uint8Array,
-): boolean {
+export function verifySignature(publicKey: Uint8Array, message: Uint8Array, signature: Uint8Array): boolean {
   return backend.verifySignature(publicKey, message, signature);
 }

@@ -77,7 +77,13 @@ export class MediaUploader {
     const enc = encryptMedia(plain, options.mediaType, mediaKey);
     options.onProgress?.({ phase: 'encrypting', bytesProcessed: plain.byteLength, totalBytes: plain.byteLength });
     const result = await this.#postEncrypted(enc.body, options, doFetch, host, logger);
-    return { ...result, mediaKey, fileSha256: enc.fileSha256, fileEncSha256: enc.fileEncSha256, fileLength: enc.fileLength };
+    return {
+      ...result,
+      mediaKey,
+      fileSha256: enc.fileSha256,
+      fileEncSha256: enc.fileEncSha256,
+      fileLength: enc.fileLength,
+    };
   }
 
   async #uploadFromFile(
@@ -146,7 +152,10 @@ export class MediaUploader {
     const tokenParam = options.uploadToken ? `&token=${encodeURIComponent(options.uploadToken)}` : '';
     const url = `${host}/${path}?auth=${encodeURIComponent(options.uploadToken ?? '')}${tokenParam}`;
 
-    const retry = new RetryManager(options.retry ?? { maxAttempts: 3, baseMs: 1_000, maxMs: 10_000, factor: 2, jitter: 0.5 }, logger);
+    const retry = new RetryManager(
+      options.retry ?? { maxAttempts: 3, baseMs: 1_000, maxMs: 10_000, factor: 2, jitter: 0.5 },
+      logger,
+    );
     const timeoutMs = options.timeoutMs ?? 30_000;
     const isStream = typeof ReadableStream !== 'undefined' && body instanceof ReadableStream;
     const totalBytes = contentLength ?? (isStream ? undefined : (body as Uint8Array).byteLength);

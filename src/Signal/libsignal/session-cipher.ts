@@ -101,7 +101,12 @@ export function decodePreKeySignalMessage(data: Uint8Array): PreKeySignalMessage
 
 // ---- cipher -----------------------------------------------------------------
 
-function computeMac(keys: MessageKeys, senderIdentity: Uint8Array, receiverIdentity: Uint8Array, serialized: Uint8Array): Uint8Array {
+function computeMac(
+  keys: MessageKeys,
+  senderIdentity: Uint8Array,
+  receiverIdentity: Uint8Array,
+  serialized: Uint8Array,
+): Uint8Array {
   const macInput = new Uint8Array(senderIdentity.byteLength + receiverIdentity.byteLength + serialized.byteLength);
   macInput.set(senderIdentity, 0);
   macInput.set(receiverIdentity, senderIdentity.byteLength);
@@ -193,7 +198,11 @@ export function decryptWhisperMessage(session: SessionState, serialized: Uint8Ar
   const cached = chain?.messageKeys.get(message.counter);
   if (cached && chain) {
     chain.messageKeys.delete(message.counter);
-    const keys: MessageKeys = { iv: cached.subarray(0, 16), cipherKey: cached.subarray(16, 48), macKey: cached.subarray(48, 80) };
+    const keys: MessageKeys = {
+      iv: cached.subarray(0, 16),
+      cipherKey: cached.subarray(16, 48),
+      macKey: cached.subarray(48, 80),
+    };
     verifyMac(keys, versionedBody, theirMac, session);
     return aesCbcDecrypt(keys.cipherKey, keys.iv, message.ciphertext);
   }

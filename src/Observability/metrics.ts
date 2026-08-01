@@ -109,7 +109,10 @@ export class ConnectionMetrics {
       counters: Object.fromEntries(this.#counters),
       gauges: Object.fromEntries(this.#gauges),
       latencies: Object.fromEntries(
-        [...this.#latencies.entries()].map(([k, v]) => [k, { count: v.count, min: v.min, max: v.max, sum: v.sum, recent: [...v.samples] }]),
+        [...this.#latencies.entries()].map(([k, v]) => [
+          k,
+          { count: v.count, min: v.min, max: v.max, sum: v.sum, recent: [...v.samples] },
+        ]),
       ),
       connection: {
         connectAttempts: this.counter('connection:attempts'),

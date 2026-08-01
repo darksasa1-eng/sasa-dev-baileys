@@ -99,9 +99,11 @@ export class WebSocketTransport extends TypedEventEmitter<TransportEvents> {
         this.emit('error', err);
       });
       ws.on('unexpected-response', (_req, res) => {
-        settle(new HandshakeError(`unexpected HTTP ${res.statusCode} from WS endpoint`, {
-          data: { statusCode: res.statusCode },
-        }));
+        settle(
+          new HandshakeError(`unexpected HTTP ${res.statusCode} from WS endpoint`, {
+            data: { statusCode: res.statusCode },
+          }),
+        );
       });
       ws.on('ping', () => ws.pong());
     });

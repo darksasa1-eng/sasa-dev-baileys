@@ -1,6 +1,5 @@
 import { randomBytes } from 'node:crypto';
 import { DecryptionError, ProtocolError } from '../../Defaults/errors';
-import { bytesEqual } from '../../Utils/buffer';
 import { aesCbcDecrypt, aesCbcEncrypt } from '../crypto';
 import { calculateSignature, generateSigningKeyPair, verifySignature } from '../curve';
 import { getFieldBytes, getFieldVarint, ProtoWriter, readFields } from '../proto-wire';
@@ -113,11 +112,7 @@ export function encryptSenderKeyMessage(record: SenderKeyRecord, plaintext: Uint
   const keys = deriveGroupMessageKeys(state.chain.chainKey);
   const ciphertext = aesCbcEncrypt(keys.cipherKey, keys.iv, plaintext);
 
-  const proto = new ProtoWriter()
-    .varint(1, state.keyId)
-    .varint(2, state.chain.iteration)
-    .bytes(3, ciphertext)
-    .finish();
+  const proto = new ProtoWriter().varint(1, state.keyId).varint(2, state.chain.iteration).bytes(3, ciphertext).finish();
 
   const body = new Uint8Array(1 + proto.byteLength);
   body[0] = SENDER_VERSION_BYTE;

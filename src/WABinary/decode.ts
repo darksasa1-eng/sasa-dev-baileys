@@ -77,7 +77,6 @@ export function decodeDecompressedBinaryNode(
 
   const readInt20 = (): number => ((readByte() & 15) << 16) | (readByte() << 8) | readByte();
 
-  // eslint-disable-next-line no-inner-declarations
   function readPacked8(tag: number): string {
     const startByte = readByte();
     let value = '';
@@ -90,7 +89,6 @@ export function decodeDecompressedBinaryNode(
     return value.replace(/\0+$/, '');
   }
 
-  // eslint-disable-next-line no-inner-declarations
   function unpackNibble(tag: number, value: number): number {
     if (tag === TAGS.NIBBLE_8) {
       if (value >= 0 && value <= 9) return 48 + value;
@@ -117,7 +115,6 @@ export function decodeDecompressedBinaryNode(
     }
   };
 
-  // eslint-disable-next-line no-inner-declarations
   function readTokenDouble(dictIndex: number, tokenIndex: number): string {
     const dict = DOUBLE_BYTE_TOKENS[dictIndex];
     const value = dict?.[tokenIndex];
@@ -128,7 +125,6 @@ export function decodeDecompressedBinaryNode(
     return value;
   }
 
-  // eslint-disable-next-line no-inner-declarations
   function readJidPair(): string {
     const user = readString(readByte());
     const server = readString(readByte());
@@ -136,7 +132,6 @@ export function decodeDecompressedBinaryNode(
     throw new ProtocolError(`decode: invalid jid pair '${user}@${server}'`);
   }
 
-  // eslint-disable-next-line no-inner-declarations
   function readAdJid(): string {
     const domainType = readByte();
     const device = readByte();
@@ -145,7 +140,6 @@ export function decodeDecompressedBinaryNode(
     return jidEncode(user, server, device === 0 ? undefined : device);
   }
 
-  // eslint-disable-next-line no-inner-declarations
   function readFbJid(): string {
     const user = readString(readByte());
     const device = readInt(2);
@@ -153,7 +147,6 @@ export function decodeDecompressedBinaryNode(
     return `${user}:${device}@${server}`;
   }
 
-  // eslint-disable-next-line no-inner-declarations
   function readInteropJid(): string {
     const user = readString(readByte());
     const device = readInt(2);

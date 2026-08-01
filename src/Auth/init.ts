@@ -34,7 +34,10 @@ export function makeInMemoryAuthState(): AuthenticationState {
 }
 
 /** Mint a batch of pre-keys continuing from the credential sequence */
-export function generatePreKeys(creds: AuthenticationCreds, count: number): { keyId: number; keyPair: ReturnType<typeof generateKeyPair> }[] {
+export function generatePreKeys(
+  creds: AuthenticationCreds,
+  count: number,
+): { keyId: number; keyPair: ReturnType<typeof generateKeyPair> }[] {
   const out = [];
   for (let i = 0; i < count; i++) out.push(generatePreKey(creds.nextPreKeyId + i));
   return out;

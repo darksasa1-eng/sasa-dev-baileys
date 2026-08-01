@@ -13,7 +13,7 @@ export function writeVarint(value: number): Uint8Array {
   if (!Number.isSafeInteger(value) || value < 0) throw new ProtocolError(`writeVarint: bad value ${value}`);
   const out: number[] = [];
   let v = value;
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     if (v < 0x80) {
       out.push(v);

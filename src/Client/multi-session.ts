@@ -3,7 +3,7 @@ import type { Logger } from '../Defaults/logger';
 import { createLogger, NOOP_LOGGER } from '../Defaults/logger';
 import { importSession } from '../Auth/session-codec';
 import type { StorageAdapter } from '../Store/adapter';
-import { SasaClient, createClient, type SasaClientOptions } from './client';
+import { type SasaClient, createClient, type SasaClientOptions } from './client';
 
 export interface SessionManagerOptions {
   /** Base config cloned per session */
@@ -52,10 +52,13 @@ export class SessionManager {
   async create(name: string, overrides?: Partial<SasaClientOptions>): Promise<SasaClient> {
     const existing = this.#sessions.get(name);
     if (existing) return existing.client;
-    if (this.#sessions.size >= 100) throw new BaileysError('session limit reached (100)', { code: 'ERR_SESSION_LIMIT' });
+    if (this.#sessions.size >= 100)
+      throw new BaileysError('session limit reached (100)', { code: 'ERR_SESSION_LIMIT' });
 
     const adapter = this.#opts.adapterFactory(name);
-    const baseLogger = this.#opts.baseConfig.logger ? createLogger(this.#opts.baseConfig.logger as never) : this.#logger;
+    const baseLogger = this.#opts.baseConfig.logger
+      ? createLogger(this.#opts.baseConfig.logger as never)
+      : this.#logger;
     const client = createClient({
       ...this.#opts.baseConfig,
       ...overrides,
@@ -133,9 +136,7 @@ export class SessionManager {
 
   /** Dispose every session (process shutdown) */
   async disposeAll(): Promise<void> {
-    await Promise.all(
-      [...this.#sessions.values()].map(({ client }) => client.dispose().catch(() => undefined)),
-    );
+    await Promise.all([...this.#sessions.values()].map(({ client }) => client.dispose().catch(() => undefined)));
     this.#sessions.clear();
   }
 }

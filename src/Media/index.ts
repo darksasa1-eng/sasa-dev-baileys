@@ -1,12 +1,7 @@
 export * from './media-type';
 export * from './crypto';
 export * from './cache';
-export {
-  MediaUploader,
-  type MediaUploadOptions,
-  type MediaUploadProgress,
-  type MediaUploadResult,
-} from './uploader';
+export { MediaUploader, type MediaUploadOptions, type MediaUploadProgress, type MediaUploadResult } from './uploader';
 export {
   MediaDownloader,
   downloadEncryptedMedia,

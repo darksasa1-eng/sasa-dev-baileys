@@ -67,7 +67,7 @@ export class RetryManager {
    */
   async execute<T>(fn: (attempt: number) => Promise<T>): Promise<T> {
     let attempt = 0;
-      // eslint-disable-next-line no-constant-condition
+
     while (true) {
       try {
         const result = await fn(attempt);

@@ -44,5 +44,15 @@ export default tseslint.config(
       },
     },
   },
+  {
+    // one-off maintenance scripts: Node globals + console output are expected
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: { console: 'readonly', process: 'readonly', Buffer: 'readonly' },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
   prettier,
 );

@@ -1,4 +1,4 @@
-import { getBinaryNodeChild } from '../WABinary/generic-utils';
+import { getBinaryNodeChild, getBinaryNodeChildString } from '../WABinary/generic-utils';
 import { decodeBinaryNode } from '../WABinary/decode';
 import { encodeBinaryNode } from '../WABinary/encode';
 import type { BinaryNode } from '../WABinary/types';
@@ -25,10 +25,10 @@ import {
   makeUserAgent,
   parseHandshakePayload,
 } from './handshake-payload';
-import { NoiseHandshake, NoiseTrafficCipher, NOISE_WA_HEADER } from './noise';
+import { NoiseHandshake, type NoiseTrafficCipher, NOISE_WA_HEADER } from './noise';
 import { WebSocketTransport } from './transport';
 import type { ConnectionMetrics } from '../Observability/metrics';
-import { TokenBucketRateLimiter } from './rate-limiter';
+import { type TokenBucketRateLimiter } from './rate-limiter';
 import type { SocketConfig } from '../Types/config';
 import type { WAConnectionState } from '../Types/events';
 import type { WAVersion } from '../Types/versions';
@@ -289,7 +289,9 @@ export class WASocket extends TypedEventEmitter<WASocketEvents> {
       return;
     }
 
-    // QR refs are pushed pre-success via <iq type="result"> with pair-device refs
+    // QR refs are pushed pre-success via <iq type="result"> with pair-device refs.
+    // Must run before iq correlation: the ref stanza also resolves the pending
+    // preauth query (which returns early), so extracting after would drop the QR.
     if (this.#state === 'preauth') {
       const maybeRef = this.#extractQrRef(node);
       if (maybeRef) this.emit('connection.update', { qr: maybeRef });
@@ -330,19 +332,29 @@ export class WASocket extends TypedEventEmitter<WASocketEvents> {
   }
 
   #extractQrRef(node: BinaryNode): string | undefined {
-    // <iq><pair-device><ref>#</ref></pair-device></iq> — the QR lifecycle stanza
+    // <iq><pair-device><ref>#</ref></pair-device></iq> — the QR lifecycle stanza.
+    // Node *content* at a binary-tag position always decodes to Uint8Array,
+    // so accept both string and binary (real servers send the ref as bytes).
     const pairDevice = getBinaryNodeChild(node, 'pair-device');
-    const refNode = pairDevice ? getBinaryNodeChild(pairDevice, 'ref') : getBinaryNodeChild(node, 'ref');
-    if (!refNode || typeof refNode.content !== 'string') return undefined;
+    const refText = getBinaryNodeChildString(pairDevice ?? node, 'ref');
+    if (!refText) return undefined;
     const creds = (this.config.auth as AuthenticationState).creds;
-    return buildQrPayload(refNode.content, creds.pairingEphemeralKeyPair.publicKey, Buffer.from(creds.registrationId?.toString() ?? '0'));
+    return buildQrPayload(
+      refText,
+      creds.pairingEphemeralKeyPair.publicKey,
+      Buffer.from(creds.registrationId?.toString() ?? '0'),
+    );
   }
 
   #requestPreAuth(): void {
     const creds = (this.config.auth as AuthenticationState).creds;
     if (creds.registered && creds.me) {
       // returning session: send passive login; success arrives next
-      void this.sendNode({ tag: 'iq', attrs: { type: 'get', xmlns: 'passive', to: 's.whatsapp.net' }, content: [{ tag: 'passive', attrs: {} }] }).catch((err) => this.emit('error', err as Error));
+      void this.sendNode({
+        tag: 'iq',
+        attrs: { type: 'get', xmlns: 'passive', to: 's.whatsapp.net' },
+        content: [{ tag: 'passive', attrs: {} }],
+      }).catch((err) => this.emit('error', err as Error));
       return;
     }
     // fresh login: request QR ref
@@ -411,7 +423,10 @@ export class WASocket extends TypedEventEmitter<WASocketEvents> {
    * Request/response round trip: attaches a fresh id, waits for the
    * matching stanza (timeout: `defaultQueryTimeoutMs`).
    */
-  async query(node: Omit<BinaryNode, 'attrs'> & { attrs?: Record<string, string> }, timeoutMs?: number): Promise<BinaryNode> {
+  async query(
+    node: Omit<BinaryNode, 'attrs'> & { attrs?: Record<string, string> },
+    timeoutMs?: number,
+  ): Promise<BinaryNode> {
     const id = node.attrs?.id ?? makeTag();
     const withId: BinaryNode = { ...node, tag: node.tag, attrs: { id, ...node.attrs } };
     const timeout = timeoutMs ?? this.config.defaultQueryTimeoutMs;
@@ -445,7 +460,9 @@ export class WASocket extends TypedEventEmitter<WASocketEvents> {
     });
     // <link_code_pairing><link_code>XXXX-XXXX</link_code></...>
     const pairingNode = getBinaryNodeChild(response, 'link_code_pairing');
-    const codeNode = pairingNode ? getBinaryNodeChild(pairingNode, 'link_code') : getBinaryNodeChild(response, 'link_code');
+    const codeNode = pairingNode
+      ? getBinaryNodeChild(pairingNode, 'link_code')
+      : getBinaryNodeChild(response, 'link_code');
     const code = typeof codeNode?.content === 'string' ? codeNode.content : undefined;
     if (!code) throw new BaileysError('pairing code not present in server response', { code: 'ERR_PAIR_CODE' });
     this.emit('connection.update', { pairingCode: code });

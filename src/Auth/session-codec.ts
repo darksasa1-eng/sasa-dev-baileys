@@ -31,7 +31,9 @@ export function exportSession(creds: AuthenticationCreds, keys: SignalDataSet): 
     keys,
   };
   const body = Buffer.from(BufferJSON.stringify(payload), 'utf-8').toString('base64url');
-  const checksum = Buffer.from(sha256(Buffer.from(body, 'utf-8'))).toString('hex').slice(0, 16);
+  const checksum = Buffer.from(sha256(Buffer.from(body, 'utf-8')))
+    .toString('hex')
+    .slice(0, 16);
   return `${body}.${checksum}`;
 }
 
@@ -40,7 +42,9 @@ export function importSession(serialized: string): { creds: AuthenticationCreds;
   if (!body || !checksum) {
     throw new BaileysError('invalid session format (expected payload.checksum)', { code: 'ERR_SESSION_FORMAT' });
   }
-  const actual = Buffer.from(sha256(Buffer.from(body, 'utf-8'))).toString('hex').slice(0, 16);
+  const actual = Buffer.from(sha256(Buffer.from(body, 'utf-8')))
+    .toString('hex')
+    .slice(0, 16);
   if (actual !== checksum) {
     throw new BaileysError('session checksum mismatch — data is corrupt or tampered', {
       code: 'ERR_SESSION_CHECKSUM',
@@ -67,7 +71,14 @@ export function importSession(serialized: string): { creds: AuthenticationCreds;
  * Collect every key of a store into a {@link SignalDataSet}
  * (used by session export; store must expose key listings).
  */
-const CATEGORIES = ['pre-key', 'session', 'sender-key', 'sender-key-memory', 'app-state-sync-key', 'app-state-sync-version'] as const;
+const CATEGORIES = [
+  'pre-key',
+  'session',
+  'sender-key',
+  'sender-key-memory',
+  'app-state-sync-key',
+  'app-state-sync-version',
+] as const;
 
 export async function collectSignalDataSet(
   listKeys: (prefix?: string) => Promise<string[]>,

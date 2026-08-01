@@ -65,7 +65,15 @@ export class MessageBuilder {
   #mediaMessage(
     kind: 'imageMessage' | 'videoMessage' | 'audioMessage' | 'documentMessage' | 'stickerMessage',
     upload: MediaUploadResult,
-    extras: { mimetype?: string; caption?: string; fileName?: string; seconds?: number; height?: number; width?: number; ptt?: boolean },
+    extras: {
+      mimetype?: string;
+      caption?: string;
+      fileName?: string;
+      seconds?: number;
+      height?: number;
+      width?: number;
+      ptt?: boolean;
+    },
     opts: BuildOptions,
   ): WAMessage {
     const content: MessageContent = {
@@ -95,12 +103,21 @@ export class MessageBuilder {
 
   video(
     upload: MediaUploadResult,
-    opts: BuildOptions & { mimetype?: string; caption?: string; seconds?: number; height?: number; width?: number } = {},
+    opts: BuildOptions & {
+      mimetype?: string;
+      caption?: string;
+      seconds?: number;
+      height?: number;
+      width?: number;
+    } = {},
   ): WAMessage {
     return this.#mediaMessage('videoMessage', upload, opts, opts);
   }
 
-  audio(upload: MediaUploadResult, opts: BuildOptions & { mimetype?: string; seconds?: number; ptt?: boolean } = {}): WAMessage {
+  audio(
+    upload: MediaUploadResult,
+    opts: BuildOptions & { mimetype?: string; seconds?: number; ptt?: boolean } = {},
+  ): WAMessage {
     return this.#mediaMessage('audioMessage', upload, opts, opts);
   }
 

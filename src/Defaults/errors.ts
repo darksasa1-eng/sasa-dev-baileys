@@ -1,4 +1,4 @@
-import { DisconnectReason, disconnectReasonLabel } from './disconnect-reason';
+import { type DisconnectReason, disconnectReasonLabel } from './disconnect-reason';
 
 export interface BaileysErrorOptions {
   /** Machine readable error code, e.g. `ERR_CONNECTION_CLOSED` */

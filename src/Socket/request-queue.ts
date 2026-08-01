@@ -52,7 +52,12 @@ export class RequestQueue {
   }
 
   get stats(): { pending: number; running: number; executed: number; rejected: number } {
-    return { pending: this.pending, running: this.#running, executed: this.#totalExecuted, rejected: this.#totalRejected };
+    return {
+      pending: this.pending,
+      running: this.#running,
+      executed: this.#totalExecuted,
+      rejected: this.#totalRejected,
+    };
   }
 
   /**
@@ -101,7 +106,10 @@ export class RequestQueue {
     try {
       if (this.#opts.rateLimiter) await this.#opts.rateLimiter.acquire(1, timeoutMs);
       const timeout = new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new TimedOutError(`queued task exceeded ${timeoutMs}ms`, { timeoutMs })), timeoutMs);
+        timer = setTimeout(
+          () => reject(new TimedOutError(`queued task exceeded ${timeoutMs}ms`, { timeoutMs })),
+          timeoutMs,
+        );
         timer.unref?.();
       });
       const result = await Promise.race([task.run(), timeout]);

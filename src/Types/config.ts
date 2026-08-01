@@ -2,6 +2,7 @@ import type { AuthenticationState } from '../Auth/types';
 import type { Logger } from '../Defaults/logger';
 import type { StorageAdapter } from '../Store/adapter';
 import type { WAVersion } from './versions';
+import type { createLogger } from '../Defaults/logger';
 
 /** Signature: (name, version, platform) — appears as the linked device label */
 export type WABrowserDescription = readonly [string, string, string];
@@ -80,7 +81,7 @@ export interface SocketConfig {
 
 export type UserFacingSocketConfig = Partial<Omit<SocketConfig, 'auth' | 'logger' | 'reconnect' | 'features'>> & {
   auth: AuthenticationState | StorageAdapter;
-  logger?: Logger | Parameters<typeof import('../Defaults/logger').createLogger>[0];
+  logger?: Logger | Parameters<typeof createLogger>[0];
   reconnect?: RetryPolicyConfig & { maxAttempts?: number };
   features?: FeatureFlags;
 };

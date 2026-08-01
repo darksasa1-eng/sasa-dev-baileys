@@ -7,7 +7,7 @@ export function generateRegistrationId(): number {
   const bytes = randomBytes(2);
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const uint16 = (bytes[0]! << 8) | bytes[1]!;
-  return (uint16 & 0x3fff) || 1;
+  return uint16 & 0x3fff || 1;
 }
 
 /** Generate a fresh pre-key (id sequencing is caller-managed) */

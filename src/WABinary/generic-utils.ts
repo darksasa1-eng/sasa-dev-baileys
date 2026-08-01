@@ -36,7 +36,11 @@ export function getBinaryNodeChildBuffer(node: BinaryNode | undefined, childTag:
   return undefined;
 }
 
-export function getBinaryNodeChildUInt(node: BinaryNode | undefined, childTag: string, length: number): number | undefined {
+export function getBinaryNodeChildUInt(
+  node: BinaryNode | undefined,
+  childTag: string,
+  length: number,
+): number | undefined {
   const buff = getBinaryNodeChildBuffer(node, childTag);
   if (!buff || buff.byteLength < length) return undefined;
   let value = 0;

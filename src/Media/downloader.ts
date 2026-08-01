@@ -53,11 +53,20 @@ export class MediaDownloader {
 
   /** Download and decrypt the whole attachment (RAM-bound to file size) */
   async download(source: MediaDownloadSource, options: MediaDownloadOptions = {}): Promise<MediaDownloadResult> {
-    const cacheKey = options.cache ? (source.fileEncSha256 ? Buffer.from(source.fileEncSha256).toString('base64') : undefined) : undefined;
+    const cacheKey = options.cache
+      ? source.fileEncSha256
+        ? Buffer.from(source.fileEncSha256).toString('base64')
+        : undefined
+      : undefined;
     if (options.cache && cacheKey) {
       const hit = options.cache.get(cacheKey);
       if (hit) {
-        return { data: hit.data, fileSha256: source.fileSha256 ?? new Uint8Array(0), fromCache: true, bytesDownloaded: 0 };
+        return {
+          data: hit.data,
+          fileSha256: source.fileSha256 ?? new Uint8Array(0),
+          fromCache: true,
+          bytesDownloaded: 0,
+        };
       }
     }
 
@@ -94,7 +103,10 @@ export class MediaDownloader {
     const url = source.url ?? `${options.host ?? MEDIA_CDN_HOST}${source.directPath ?? ''}`;
     if (!source.directPath && !source.url) throw new MediaError('media download: no url/directPath provided');
 
-    const retry = new RetryManager(options.retry ?? { maxAttempts: 3, baseMs: 500, maxMs: 8_000, factor: 2, jitter: 0.5 }, logger);
+    const retry = new RetryManager(
+      options.retry ?? { maxAttempts: 3, baseMs: 500, maxMs: 8_000, factor: 2, jitter: 0.5 },
+      logger,
+    );
     const timeoutMs = options.timeoutMs ?? 60_000;
 
     const response = await retry.execute(async () => {
@@ -102,7 +114,8 @@ export class MediaDownloader {
         headers: { 'user-agent': options.userAgent ?? DEFAULT_HTTP_USER_AGENT },
         signal: AbortSignal.timeout(timeoutMs),
       });
-      if (!res.ok) throw new MediaError(`media download failed: HTTP ${res.status}`, { data: { statusCode: res.status } });
+      if (!res.ok)
+        throw new MediaError(`media download failed: HTTP ${res.status}`, { data: { statusCode: res.status } });
       return res;
     });
 
@@ -113,7 +126,6 @@ export class MediaDownloader {
     let received = 0;
     const reader = (response.body as ReadableStream<Uint8Array>).getReader();
     try {
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -132,6 +144,9 @@ export class MediaDownloader {
 }
 
 /** Convenience functional API mirroring the class */
-export async function downloadEncryptedMedia(source: MediaDownloadSource, options: MediaDownloadOptions = {}): Promise<MediaDownloadResult> {
+export async function downloadEncryptedMedia(
+  source: MediaDownloadSource,
+  options: MediaDownloadOptions = {},
+): Promise<MediaDownloadResult> {
   return new MediaDownloader(options.logger).download(source, options);
 }

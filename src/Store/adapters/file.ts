@@ -84,7 +84,10 @@ export class FileStorageAdapter implements StorageAdapter {
         throw wrapStorageError(err, `file adapter: write failed for key ${key}`);
       }
     });
-    this.#writeChains.set(key, next.catch(() => undefined));
+    this.#writeChains.set(
+      key,
+      next.catch(() => undefined),
+    );
     return next;
   }
 
@@ -114,9 +117,7 @@ export class FileStorageAdapter implements StorageAdapter {
     try {
       await this.connect();
       const entries = await readdir(this.#dir);
-      await Promise.all(
-        entries.filter((f) => f.endsWith('.json')).map((f) => rm(join(this.#dir, f), { force: true })),
-      );
+      await Promise.all(entries.filter((f) => f.endsWith('.json')).map((f) => rm(join(this.#dir, f), { force: true })));
     } catch (err) {
       this.#logger.warn({ err: String(err) }, 'file adapter: clear failed');
     }

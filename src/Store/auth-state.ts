@@ -54,7 +54,10 @@ export async function useAuthState(
   }
 
   const keys: AuthenticationState['keys'] = {
-    async get<T extends keyof SignalDataTypeMap>(type: T, ids: string[]): Promise<{ [id: string]: SignalDataTypeMap[T] }> {
+    async get<T extends keyof SignalDataTypeMap>(
+      type: T,
+      ids: string[],
+    ): Promise<{ [id: string]: SignalDataTypeMap[T] }> {
       const out: { [id: string]: SignalDataTypeMap[T] } = {};
       await Promise.all(
         ids.map(async (id) => {

@@ -46,9 +46,7 @@ export class SqliteStorageAdapter implements StorageAdapter {
     if (this.#ready) return;
     try {
       this.#db.pragma?.('journal_mode = WAL');
-      this.#db.exec(
-        `CREATE TABLE IF NOT EXISTS ${this.#table} (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)`,
-      );
+      this.#db.exec(`CREATE TABLE IF NOT EXISTS ${this.#table} (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)`);
       this.#ready = true;
     } catch (err) {
       throw wrapStorageError(err, 'sqlite adapter: init failed');
@@ -59,8 +57,7 @@ export class SqliteStorageAdapter implements StorageAdapter {
     await this.connect();
     try {
       const row = this.#db.prepare(`SELECT value FROM ${this.#table} WHERE key = ?`).get(key) as
-        | { value: string }
-        | undefined;
+        { value: string } | undefined;
       if (!row) return undefined;
       return BufferJSON.parse<T>(row.value);
     } catch (err) {
@@ -72,7 +69,9 @@ export class SqliteStorageAdapter implements StorageAdapter {
     await this.connect();
     try {
       this.#db
-        .prepare(`INSERT INTO ${this.#table} (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`)
+        .prepare(
+          `INSERT INTO ${this.#table} (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+        )
         .run(key, BufferJSON.stringify(value));
     } catch (err) {
       throw wrapStorageError(err, `sqlite adapter: set failed for key ${key}`);

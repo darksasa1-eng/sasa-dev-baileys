@@ -1,5 +1,18 @@
 /** WhatsApp media categories used for HKDF key derivation + uploads */
-export type MediaType = 'image' | 'video' | 'audio' | 'document' | 'sticker' | 'history' | 'link-preview' | 'product-catalog-image' | 'md-app-state' | 'product' | 'ptt' | 'thumbnail-link' | 'md-msg-hist';
+export type MediaType =
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'document'
+  | 'sticker'
+  | 'history'
+  | 'link-preview'
+  | 'product-catalog-image'
+  | 'md-app-state'
+  | 'product'
+  | 'ptt'
+  | 'thumbnail-link'
+  | 'md-msg-hist';
 
 /** HKDF info strings per media class (part of the encryption spec) */
 const MEDIA_HKDF_INFO: Record<MediaType, string> = {
@@ -25,10 +38,19 @@ export function getMediaHkdfInfo(mediaType: MediaType): string {
 /** Upload path segments on the media server, e.g. `mms/image` */
 export function getUploadPath(mediaType: MediaType): string {
   const map: Record<MediaType, string> = {
-    image: 'image', video: 'video', audio: 'audio', document: 'document',
-    sticker: 'image', history: 'history', 'md-msg-hist': 'history',
-    'link-preview': 'thumbnail-link', 'product-catalog-image': 'product-catalog-image',
-    product: 'document', ptt: 'ptt', 'thumbnail-link': 'thumbnail-link', 'md-app-state': 'md-app-state',
+    image: 'image',
+    video: 'video',
+    audio: 'audio',
+    document: 'document',
+    sticker: 'image',
+    history: 'history',
+    'md-msg-hist': 'history',
+    'link-preview': 'thumbnail-link',
+    'product-catalog-image': 'product-catalog-image',
+    product: 'document',
+    ptt: 'ptt',
+    'thumbnail-link': 'thumbnail-link',
+    'md-app-state': 'md-app-state',
   };
   return `mms/${map[mediaType]}`;
 }
@@ -43,12 +65,30 @@ export function getMediaType(payload: { mimetype?: string }, defaultType: MediaT
 }
 
 const MIME_BY_EXT: Record<string, string> = {
-  jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif',
-  mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm', '3gp': 'video/3gpp', mkv: 'video/x-matroska',
-  mp3: 'audio/mpeg', ogg: 'audio/ogg', opus: 'audio/ogg; codecs=opus', m4a: 'audio/mp4', aac: 'audio/aac', wav: 'audio/wav',
-  pdf: 'application/pdf', zip: 'application/zip', txt: 'text/plain', json: 'application/json',
-  doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  gif: 'image/gif',
+  mp4: 'video/mp4',
+  mov: 'video/quicktime',
+  webm: 'video/webm',
+  '3gp': 'video/3gpp',
+  mkv: 'video/x-matroska',
+  mp3: 'audio/mpeg',
+  ogg: 'audio/ogg',
+  opus: 'audio/ogg; codecs=opus',
+  m4a: 'audio/mp4',
+  aac: 'audio/aac',
+  wav: 'audio/wav',
+  pdf: 'application/pdf',
+  zip: 'application/zip',
+  txt: 'text/plain',
+  json: 'application/json',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 };
 
 export function detectMimeType(fileName: string, fallback = 'application/octet-stream'): string {
