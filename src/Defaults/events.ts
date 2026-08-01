@@ -11,7 +11,8 @@ export type EventHandler<T> = (payload: T) => void;
  *   most common source of "event fired twice" reports
  * - `waitFor()` turns an emission into a promise with timeout + cleanup
  */
-export class TypedEventEmitter<TEvents extends Record<string, unknown>> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class TypedEventEmitter<TEvents extends Record<string, any>> {
   readonly #emitter = new EventEmitter({ captureRejections: true });
   readonly #guardDuplicates: boolean;
 
